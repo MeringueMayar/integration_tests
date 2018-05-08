@@ -31,6 +31,7 @@ public class UserRepositoryTest {
     public void setUp() {
         user = new User();
         user.setFirstName("Jan");
+        user.setLastName("Kowalski");
         user.setEmail("john@domain.com");
         user.setAccountStatus(AccountStatus.NEW);
     }
@@ -58,6 +59,42 @@ public class UserRepositoryTest {
         User persistedUser = repository.save(user);
 
         Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
+    }
+
+    @Test
+    public void searchingForUserWithCorrectFirstNameShouldReturnUser() {
+        User persistedUser = repository.save(user);
+
+        List<User> users = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(
+                user.getFirstName(), "", "");
+        Assert.assertThat(users.get(0).getFirstName(), Matchers.equalTo(persistedUser.getFirstName()));
+    }
+
+    @Test
+    public void searchingForUserWithIncorrectDataShouldReturnNoUsers() {
+        User persistedUser = repository.save(user);
+
+        List<User> users = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(
+                "Marek", "Nowak", "ab@domain.com");
+        Assert.assertThat(users, Matchers.hasSize(0));
+    }
+
+    @Test
+    public void searchingForUserWithCorrectLastNameShouldReturnUser() {
+        User persistedUser = repository.save(user);
+
+        List<User> users = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("",
+                persistedUser.getLastName(), "");
+        Assert.assertThat(users.get(0).getLastName(), Matchers.equalTo(persistedUser.getLastName()));
+    }
+
+    @Test
+    public void searchingForUserWithCorrectEmailShouldReturnUser() {
+        User persistedUser = repository.save(user);
+
+        List<User> users = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("",
+                "", persistedUser.getEmail());
+        Assert.assertThat(users.get(0).getEmail(), Matchers.equalTo(persistedUser.getEmail()));
     }
 
 }
