@@ -60,13 +60,15 @@ public class LikePostRepositoryTest {
     }
     
     @Test
-    public void shouldFindUsersLikePost() {
+    public void shouldFindCorrectLikePost() {
         userRepository.save(user);
         userRepository.save(user2);
         blogPostRepository.save(post);
         likePostRepository.save(likePost);
         LikePost receivedLikePost = likePostRepository.findByUserAndPost(user2, post).get();
+        
         Assert.assertThat(receivedLikePost.getUser(), Matchers.is(user2));
+        Assert.assertThat(receivedLikePost.getPost(), Matchers.is(post));
     }
     
 }
