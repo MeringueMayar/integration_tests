@@ -51,7 +51,7 @@ public class BlogManagerTest {
 	}
 
 	@Test(expected = DomainError.class)
-	public void addLikeByOwnerPostShouldThrowDomainError() {
+	public void addLikeByUnconfirmedUserShouldThrowDomainError() {
 
 		// create owner of post
 		Long ownerId = new Long(1);
