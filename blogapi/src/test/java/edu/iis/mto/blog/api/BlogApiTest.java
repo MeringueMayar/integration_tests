@@ -1,9 +1,12 @@
 package edu.iis.mto.blog.api;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import javax.persistence.EntityNotFoundException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,6 +68,11 @@ public class BlogApiTest {
 
         mvc.perform(post("/blog/user").contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaType.APPLICATION_JSON_UTF8).content(content)).andExpect(status().isConflict());
+    }
+    @Test
+    public void fetchDataOfNonExistUserShouldResponseWithStatus404() throws Exception {
+    	Mockito.when(finder.getUserData(new Long(1))).thenThrow(EntityNotFoundException.class);
+    	mvc.perform(get("/blog/user/1")).andExpect(status().isNotFound());
     }
     private String writeJson(Object obj) throws JsonProcessingException {
         return new ObjectMapper().writer().writeValueAsString(obj);
