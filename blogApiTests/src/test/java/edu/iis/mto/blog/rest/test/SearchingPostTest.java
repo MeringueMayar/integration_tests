@@ -12,6 +12,7 @@ public class SearchingPostTest {
 	private final String removedUser="/blog/user/4/post";
 	@Test
 	public void whenUserStatusRemovedSearchingShouldReturnBadRequest() {
-		RestAssured.when().get(removedUser).then().contentType(ContentType.JSON).statusCode(HttpStatus.SC_BAD_REQUEST);
+		RestAssured.when().get(removedUser).then().statusCode(HttpStatus.SC_BAD_REQUEST);
 	}
+	
 }
