@@ -1,1 +1,1 @@
---this script initiates db for integration tests 
+--this script initiates db for integration tests

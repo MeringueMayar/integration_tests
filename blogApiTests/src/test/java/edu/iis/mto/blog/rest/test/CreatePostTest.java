@@ -21,4 +21,12 @@ public class CreatePostTest extends FunctionalTests {
                 .when().post(CONFIRMED_USER_POST_API);
     }
     
+    @Test
+    public void shouldReturnHttpStatusBadRequestIfNewUserIsCreatingPost() {
+        JSONObject jsonObj = new JSONObject().put("entry", "test");
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
+                .body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_BAD_REQUEST)
+                .when().post(NEW_USER_POST_API);
+    }
+    
 }
