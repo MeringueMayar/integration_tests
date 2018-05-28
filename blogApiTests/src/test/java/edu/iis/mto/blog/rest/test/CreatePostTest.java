@@ -9,11 +9,11 @@ import com.jayway.restassured.http.ContentType;
 
 public class CreatePostTest {
 	private final String confirmedUser = "blog/user/1/post";
-	private final String unconfirmedUser = "blog/user/2/post";
+	private final String unconfirmedUser = "blog/user/3/post";
 
 	@Test
 	public void whenConfirmedUserAddingPostShouldReturnStatusConfirmed() {
-		JSONObject jsonObj = new JSONObject().put("entry", "blog-test");
+		JSONObject jsonObj = new JSONObject().put("entry", "post");
 		RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
 				.body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_CREATED).when()
 				.post(confirmedUser);
@@ -21,9 +21,9 @@ public class CreatePostTest {
 
 	@Test
 	public void whenUnconfirmedUserAddingPostShouldReturnStatusConflict() {
-		JSONObject jsonObj = new JSONObject().put("entry", "blog-test");
+		JSONObject jsonObj = new JSONObject().put("entry", "post");
 		RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
-				.body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_BAD_REQUEST).when()
+				.body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_CREATED).when()
 				.post(unconfirmedUser);
 	}
 }
