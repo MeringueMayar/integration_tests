@@ -52,18 +52,19 @@ public class BlogApiTest {
                 .accept(MediaType.APPLICATION_JSON_UTF8).content(content)).andExpect(status().isCreated())
                 .andExpect(content().string(writeJson(new Id(newUserId))));
     }
-    //in progress
-    @Test (expected = DataIntegrityViolationException.class)
+    @Test 
     public void postBlogUserShouldResponseWithStatus409() throws Exception {
-    	UserRequest user = new UserRequest();
+    	
+		Long newUserId = 1L;
+        UserRequest user = new UserRequest();
         user.setEmail("john@domain.com");
         user.setFirstName("John");
         user.setLastName("Steward");
-    	
-    	String content = writeJson(user);
-    	
-		mvc.perform(post("blog/user").contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8).content(content)).andExpect(status().isConflict());
-		
+        Mockito.when(blogService.createUser(user)).thenThrow(DataIntegrityViolationException.class);
+        String content = writeJson(user);
+
+        mvc.perform(post("/blog/user").contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8).content(content)).andExpect(status().isConflict());
     }
     private String writeJson(Object obj) throws JsonProcessingException {
         return new ObjectMapper().writer().writeValueAsString(obj);

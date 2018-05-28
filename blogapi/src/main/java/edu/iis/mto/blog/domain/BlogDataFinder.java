@@ -35,10 +35,10 @@ public class BlogDataFinder extends DomainService implements DataFinder {
 	public List<UserData> findUsers(String searchString) {
 		List<User> users = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(
 				searchString, searchString, searchString);
-		Iterator itr=users.iterator();
-		while(itr.hasNext()) {
-			User user=(User) itr.next();
-			if(user.getAccountStatus()==AccountStatus.REMOVED)
+		Iterator itr = users.iterator();
+		while (itr.hasNext()) {
+			User user = (User) itr.next();
+			if (user.getAccountStatus() == AccountStatus.REMOVED)
 				itr.remove();
 		}
 		return users.stream().map(user -> mapper.mapToDto(user)).collect(Collectors.toList());
