@@ -16,6 +16,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import edu.iis.mto.blog.domain.model.AccountStatus;
 import edu.iis.mto.blog.domain.model.User;
 
+import static org.hamcrest.Matchers.is;
+
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class UserRepositoryTest {
@@ -61,4 +63,33 @@ public class UserRepositoryTest {
         Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
     }
 
+    @Test
+    public void shouldFindUserByFullFirstName() {
+        repository.save(user);
+
+        String searchString = "jan";
+        List<User> foundUsersList = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(searchString, searchString, searchString);
+
+        Assert.assertThat(foundUsersList.contains(user), is(true));
+    }
+
+    @Test
+    public void shouldFindUserByPartialFirstName() {
+        repository.save(user);
+
+        String searchString = "ja";
+        List<User> foundUsersList = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(searchString, searchString, searchString);
+
+        Assert.assertThat(foundUsersList.contains(user), is(true));
+    }
+
+    @Test
+    public void shouldFindUserByFullEmail() {
+        repository.save(user);
+
+        String searchString = "john@domain.com";
+        List<User> foundUsersList = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(searchString, searchString, searchString);
+
+        Assert.assertThat(foundUsersList.contains(user), is(true));
+    }
 }
