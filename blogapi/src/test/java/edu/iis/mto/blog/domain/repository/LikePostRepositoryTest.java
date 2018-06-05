@@ -1,5 +1,6 @@
 package edu.iis.mto.blog.domain.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,10 +30,7 @@ import edu.iis.mto.blog.domain.model.User;
 public class LikePostRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private UserRepository repository;
+    private UserRepository userRepository;
 
     @Autowired
     private LikePostRepository likePostRepository;
@@ -40,41 +38,43 @@ public class LikePostRepositoryTest {
     @Autowired
     private BlogPostRepository blogPostRepository;
 
-    @Autowired
-    private DataFinder dataFinder;
-    @MockBean
-    private BlogService blogService;
-
     private User user;
+    private BlogPost post;
 
     @Before
     public void setUp() {
+        createUserMock();
+        createBlogPostMockByUser(user);
+    }
+    private void createUserMock(){
         user = new User();
         user.setFirstName("Jan");
         user.setEmail("john@domain.com");
         user.setAccountStatus(AccountStatus.NEW);
     }
-
+    private void createBlogPostMockByUser(User user) {
+        post = new BlogPost();
+        post.setEntry("test");
+        post.setUser(user);
+    }
 /*
 Utwórz JUnit TestCase dla klasy LikePostRepository. Opracuj testy sprawdzające poprawność tworzenia i modyfikacji encji LikePost oraz przetestuj metodę findByUserAndPost.
 
  */
     @Test
-    public void like(){
-        User persistedUser = repository.save(user);
-        Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
-        PostRequest postRequest=new PostRequest();
+    public void likePostRepositoryTest() {
+        userRepository.save(user);
+        blogPostRepository.save(post);
 
-        Long idPost = blogService.createPost(persistedUser.getId(),postRequest);
-        Assert.assertThat(idPost, Matchers.notNullValue());
-        List<BlogPost> blogPosts = blogPostRepository.findByUser(persistedUser);
-        blogService.addLikeToPost(persistedUser.getId(), idPost);
-        Optional<LikePost> likePostOptional = likePostRepository.findByUserAndPost(persistedUser,blogPosts.get(0));
-        LikePost likePost = likePostOptional.get();
-        LikePost findPost = dataFinder.getPost(idPost);
+        LikePost likePost = new LikePost();
+        likePost.setPost(post);
+        likePost.setUser(user);
+        likePostRepository.save(likePost);
 
-        Assert.assertThat(findPost, Matchers.equalTo(likePost));
-        List<User> users = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Janek","","john@domain.com");
-        Assert.assertThat(users, Matchers.hasSize(0));
+        List<LikePost> likePosts = likePostRepository.findAll();
+        Assert.assertThat(likePosts, Matchers.hasSize(1));
+        Assert.assertThat(likePosts.get(0).getUser(), Matchers.equalTo(likePost.getUser()));
+        Assert.assertThat(likePosts.get(0).getPost(), Matchers.equalTo(likePost.getPost()));
+        Assert.assertThat(likePosts.get(0), Matchers.equalTo(likePost));
     }
 }
