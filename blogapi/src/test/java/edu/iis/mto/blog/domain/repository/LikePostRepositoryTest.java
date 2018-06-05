@@ -2,6 +2,8 @@ package edu.iis.mto.blog.domain.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
 import org.hamcrest.Matchers;
@@ -97,5 +99,14 @@ public class LikePostRepositoryTest {
         post = likePostRepository.findAll().get(0);
         assertThat(post.getPost(), Matchers.equalTo(otherPost));
         assertThat(post.getPost(), Matchers.not(equalTo(post)));
+    }
+    @Test
+    public void findByUserAndPostWhenEmptyRepository() {
+        userRepository.save(user);
+        blogPostRepository.save(post);
+
+        Optional<LikePost> likePostRepositoryByUserAndPost = likePostRepository.findByUserAndPost(user, post);
+
+        assertThat(likePostRepositoryByUserAndPost.orElse(null), Matchers.equalTo(null));
     }
 }
