@@ -60,9 +60,32 @@ public class LikePostRepositoryTest {
 
     @Test
     public void shouldStoreLikedPostGivenCorrectData() {
-        entityManager.persist(likePost);
+        likePostRepository.save(likePost);
         List<LikePost> likedPostsList = likePostRepository.findAll();
 
+        Assert.assertThat(likedPostsList.size(), Matchers.is(1));
         Assert.assertThat(likedPostsList.get(0), Matchers.is(likePost));
+    }
+
+    @Test
+    public void shouldFindLikePostGivenUserAndPost() {
+        likePostRepository.save(likePost);
+        Optional<LikePost> likedPosts = likePostRepository.findByUserAndPost(user, blogPost);
+
+        Assert.assertThat(likedPosts, Matchers.is(Optional.of(likePost)));
+    }
+
+    @Test
+    public void shouldNotFindLikePostGivenIncorrectUserOrPost() {
+        User wrongUser = new User();
+        wrongUser.setEmail("otheruser@example.com");
+        wrongUser.setAccountStatus(AccountStatus.CONFIRMED);
+
+        likePostRepository.save(likePost);
+        entityManager.persist(wrongUser);
+
+        Optional<LikePost> likedPosts = likePostRepository.findByUserAndPost(wrongUser, blogPost);
+
+        Assert.assertThat(likedPosts, Matchers.is(Optional.empty()));
     }
 }
