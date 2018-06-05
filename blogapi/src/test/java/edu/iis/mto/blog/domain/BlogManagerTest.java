@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,9 +36,6 @@ public class BlogManagerTest {
 
     @MockBean
     BlogPostRepository blogPostRepository;
-
-    @MockBean
-    LikePostRepository likePostRepository;
 
     @Autowired
     DataMapper dataMapper;
@@ -79,5 +77,21 @@ public class BlogManagerTest {
         Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
 
         blogService.addLikeToPost(owner.getId(), blogPost.getId());
+    }
+
+    @Test(expected = DomainError.class)
+    public void addingALikeByNewAccountShouldThrowDomainError() {
+        User owner = new UserBuilder().withID(1L).build();
+        Mockito.when(userRepository.findOne(1L)).thenReturn(owner);
+
+        User liker = new UserBuilder().withID(2L).build();
+        Mockito.when(userRepository.findOne(2L)).thenReturn(liker);
+
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(1L);
+        blogPost.setUser(owner);
+        Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
+
+        blogService.addLikeToPost(liker.getId(), blogPost.getId());
     }
 }
