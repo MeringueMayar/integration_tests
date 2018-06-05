@@ -1,6 +1,7 @@
 package edu.iis.mto.blog.domain;
 
 import edu.iis.mto.blog.api.request.PostRequest;
+import edu.iis.mto.blog.domain.errors.DomainError;
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
 import edu.iis.mto.blog.domain.repository.BlogPostRepository;
@@ -62,5 +63,21 @@ public class BlogManagerTest {
         Assert.assertThat(blogPost.getLikes(), Matchers.nullValue());
     }
 
+    @Test(expected = DomainError.class)
+    public void addingALikeToOwnPostShouldThrowDomainError() {
+        User owner = new User();
+        owner.setId(1L);
+        Mockito.when(userRepository.findOne(1L)).thenReturn(owner);
 
+        User liker = new User();
+        liker.setId(2L);
+        Mockito.when(userRepository.findOne(2L)).thenReturn(liker);
+
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(1L);
+        blogPost.setUser(owner);
+        Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
+
+        blogService.addLikeToPost(owner.getId(), blogPost.getId());
+    }
 }
