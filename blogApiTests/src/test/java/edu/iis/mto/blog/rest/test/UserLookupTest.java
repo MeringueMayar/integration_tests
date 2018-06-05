@@ -12,8 +12,16 @@ public class UserLookupTest extends FunctionalTests {
     @Test
     public void shouldReturnNotFoundWhenAUserWithNonexisitingIDisRequested() {
         JSONObject jsonObj = new JSONObject();
-        String invalidUserId = "0";
+        String userId = "0";
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
-                .body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_NOT_FOUND).when().get(USER_LOOKUP_BASE + invalidUserId);
+                .body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_NOT_FOUND).when().get(USER_LOOKUP_BASE + userId);
+    }
+
+    @Test
+    public void shouldReturnOKWhenAUserWithValidIDisRequested() {
+        JSONObject jsonObj = new JSONObject();
+        String userId = "1";
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
+                .body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_OK).when().get(USER_LOOKUP_BASE + userId);
     }
 }
