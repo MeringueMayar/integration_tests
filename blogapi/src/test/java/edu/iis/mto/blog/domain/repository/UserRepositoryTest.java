@@ -47,7 +47,7 @@ public class UserRepositoryTest {
     @Test
     public void shouldFindOneUsersIfRepositoryContainsOneUserEntity() {
         User persistedUser = entityManager.persist(user);
-        
+
         List<User> users = repository.findAll();
 
         Assert.assertThat(users, Matchers.hasSize(1));
@@ -61,27 +61,32 @@ public class UserRepositoryTest {
 
         Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
     }
-    
+
     @Test
     public void findByUserFirstNameContainingPredict() {
         repository.save(user);
-        List<User> userList=repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("jan", "", "");
-        
+        List<User> userList = repository
+                .findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("jan", "", "");
+
         Assert.assertThat(userList, Matchers.hasSize(1));
-               
+
     }
+
     @Test
     public void findByUserEmailContainingPredict() {
         repository.save(user);
-        List<User> userList=repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("", "", "domain");
-        
+        List<User> userList = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("",
+                "", "domain");
+
         Assert.assertThat(userList, Matchers.hasSize(1));
     }
+
     @Test
     public void findWithWrongValuesContainingPredict() {
         repository.save(user);
-        List<User> userList=repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("xxx", "", "xxx");
-        
+        List<User> userList = repository
+                .findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("xxx", "", "xxx");
+
         Assert.assertThat(userList, Matchers.hasSize(0));
     }
 

@@ -29,60 +29,62 @@ import edu.iis.mto.blog.services.BlogService;
 @SpringBootTest
 public class BlogManagerTest {
 
-	@MockBean
-	UserRepository userRepository;
+    @MockBean
+    UserRepository userRepository;
 
-	@MockBean
-	BlogPostRepository postRepository;
+    @MockBean
+    BlogPostRepository postRepository;
 
-	@Autowired
-	DataMapper dataMapper;
+    @Autowired
+    DataMapper dataMapper;
 
-	@Autowired
-	BlogService blogService;
+    @Autowired
+    BlogService blogService;
 
-	@Test
-	public void creatingNewUserShouldSetAccountStatusToNEW() {
+    @Test
+    public void creatingNewUserShouldSetAccountStatusToNEW() {
 
-		blogService.createUser(new UserRequest("John", "Steward", "john@domain.com"));
-		ArgumentCaptor<User> userParam = ArgumentCaptor.forClass(User.class);
-		Mockito.verify(userRepository).save(userParam.capture());
-		User user = userParam.getValue();
-		Assert.assertThat(user.getAccountStatus(), Matchers.equalTo(AccountStatus.NEW));
+        blogService.createUser(new UserRequest("John", "Steward", "john@domain.com"));
+        ArgumentCaptor<User> userParam = ArgumentCaptor.forClass(User.class);
+        Mockito.verify(userRepository).save(userParam.capture());
+        User user = userParam.getValue();
+        Assert.assertThat(user.getAccountStatus(), Matchers.equalTo(AccountStatus.NEW));
 
-	}
-	@Test(expected = EntityNotFoundException.class)
-	public void additionalTestIfBlogPostRepositoryReturnNull() {
-	    Long ownerId=new Long(1);
-	    Long likerId=new Long(2);
-	    
-	    when(postRepository.findOne(ownerId)).thenThrow(new EntityNotFoundException());
-	    blogService.addLikeToPost(likerId, ownerId);
-	    
-	}
-	@Test(expected = DomainError.class)
-	public void addLikeByUnconfirmedUserShouldThrowDomainError() {
+    }
 
-		// create owner of post
-		Long ownerId = new Long(1);
-		User owner = new User();
-		owner.setId(ownerId);
+    @Test(expected = EntityNotFoundException.class)
+    public void additionalTestIfBlogPostRepositoryReturnNull() {
+        Long ownerId = new Long(1);
+        Long likerId = new Long(2);
 
-		// create liker of post
-		Long likerId = new Long(2);
-		User liker = new User();
-		liker.setId(likerId);
-		liker.setAccountStatus(AccountStatus.NEW);
+        when(postRepository.findOne(ownerId)).thenThrow(new EntityNotFoundException());
+        blogService.addLikeToPost(likerId, ownerId);
 
-		// create post
-		BlogPost blogPost = new BlogPost();
-		blogPost.setId(ownerId);
-		blogPost.setUser(owner);
+    }
 
-		when(userRepository.findOne(likerId)).thenReturn(liker);
-		when(postRepository.findOne(ownerId)).thenReturn(blogPost);
+    @Test(expected = DomainError.class)
+    public void addLikeByUnconfirmedUserShouldThrowDomainError() {
 
-		blogService.addLikeToPost(likerId, ownerId);
+        // create owner of post
+        Long ownerId = new Long(1);
+        User owner = new User();
+        owner.setId(ownerId);
 
-	}
+        // create liker of post
+        Long likerId = new Long(2);
+        User liker = new User();
+        liker.setId(likerId);
+        liker.setAccountStatus(AccountStatus.NEW);
+
+        // create post
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(ownerId);
+        blogPost.setUser(owner);
+
+        when(userRepository.findOne(likerId)).thenReturn(liker);
+        when(postRepository.findOne(ownerId)).thenReturn(blogPost);
+
+        blogService.addLikeToPost(likerId, ownerId);
+
+    }
 }

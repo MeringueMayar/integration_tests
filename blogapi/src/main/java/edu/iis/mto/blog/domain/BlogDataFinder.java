@@ -22,44 +22,45 @@ import edu.iis.mto.blog.services.DataFinder;
 @Service
 public class BlogDataFinder extends DomainService implements DataFinder {
 
-	@Override
-	public UserData getUserData(Long userId) {
-		User user = userRepository.findOne(userId);
-		if (user == null) {
-			throw new EntityNotFoundException(String.format("user with id %1 does not exists", userId));
-		}
-		return mapper.mapToDto(user);
-	}
+    @Override
+    public UserData getUserData(Long userId) {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new EntityNotFoundException(String.format("user with id %1 does not exists", userId));
+        }
+        return mapper.mapToDto(user);
+    }
 
-	@Override
-	public List<UserData> findUsers(String searchString) {
-		List<User> users = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(
-				searchString, searchString, searchString);
-		
-		return users.stream().filter(user -> user.getAccountStatus() != AccountStatus.REMOVED).map(user -> mapper.mapToDto(user)).collect(Collectors.toList());
-		
-	}
+    @Override
+    public List<UserData> findUsers(String searchString) {
+        List<User> users = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(
+                searchString, searchString, searchString);
 
-	@Override
-	public PostData getPost(Long userId) {
-		BlogPost blogPost = blogPostRepository.findOne(userId);
-		if(blogPost == null) {
-		    throw new EntityNotFoundException(String.format("blogpost by user id %1 not exist", userId));
-		}
-		return mapper.mapToDto(blogPost);
-	}
+        return users.stream().filter(user -> user.getAccountStatus() != AccountStatus.REMOVED)
+                .map(user -> mapper.mapToDto(user)).collect(Collectors.toList());
 
-	@Override
-	public List<PostData> getUserPosts(Long userId) {
-		User user = userRepository.findOne(userId);
-		if(user == null) {
-		    throw new EntityNotFoundException(String.format("user with id %1 does not exist",userId));
-		}
-		if (user.getAccountStatus() == AccountStatus.REMOVED) {
-			throw new DomainError("account removed");
-		}
-		List<BlogPost> posts = blogPostRepository.findByUser(user);
-		return posts.stream().map(post -> mapper.mapToDto(post)).collect(Collectors.toList());
-	}
+    }
+
+    @Override
+    public PostData getPost(Long userId) {
+        BlogPost blogPost = blogPostRepository.findOne(userId);
+        if (blogPost == null) {
+            throw new EntityNotFoundException(String.format("blogpost by user id %1 not exist", userId));
+        }
+        return mapper.mapToDto(blogPost);
+    }
+
+    @Override
+    public List<PostData> getUserPosts(Long userId) {
+        User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new EntityNotFoundException(String.format("user with id %1 does not exist", userId));
+        }
+        if (user.getAccountStatus() == AccountStatus.REMOVED) {
+            throw new DomainError("account removed");
+        }
+        List<BlogPost> posts = blogPostRepository.findByUser(user);
+        return posts.stream().map(post -> mapper.mapToDto(post)).collect(Collectors.toList());
+    }
 
 }

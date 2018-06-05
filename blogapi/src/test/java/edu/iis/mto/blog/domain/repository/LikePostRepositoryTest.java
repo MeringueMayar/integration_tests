@@ -22,56 +22,55 @@ import edu.iis.mto.blog.domain.model.UserBuilder;
 @RunWith(SpringRunner.class)
 @DataJpaTest
 public class LikePostRepositoryTest {
-    
+
     @Autowired
     LikePostRepository likePostRepository;
-    @Autowired 
+    @Autowired
     UserRepository userRepository;
     @Autowired
     BlogPostRepository blogPostRepository;
-    
-    
+
     User user;
     User user2;
     BlogPost blogPost;
     LikePost likePost;
+
     @Before
     public void setUp() {
         user = new UserBuilder().withFirstName("Tomek").build();
-        user2= new UserBuilder().withFirstName("Jan").withEmail("jan@test.pl").build();
+        user2 = new UserBuilder().withFirstName("Jan").withEmail("jan@test.pl").build();
         userRepository.save(user);
         userRepository.save(user2);
-        
-        
-        blogPost=new BlogPost();
+
+        blogPost = new BlogPost();
         blogPost.setUser(user);
         blogPost.setEntry("Test entry");
         blogPostRepository.save(blogPost);
         //
-        likePost=new LikePost();
+        likePost = new LikePost();
     }
-    
+
     @Test
     public void shouldFindNoLikePostIfRepositoryIsEmptyTest() {
-        List<LikePost> likePostList=likePostRepository.findAll();
-         Assert.assertThat(likePostList, Matchers.hasSize(0));
+        List<LikePost> likePostList = likePostRepository.findAll();
+        Assert.assertThat(likePostList, Matchers.hasSize(0));
     }
-    
+
     @Test
     public void shouldReturnListWithSizeOneIfThereIsOnLike() {
         likePost.setPost(blogPost);
         likePost.setUser(user2);
         likePostRepository.save(likePost);
-        List<LikePost> likePostList=likePostRepository.findAll();
+        List<LikePost> likePostList = likePostRepository.findAll();
         Assert.assertThat(likePostList, Matchers.hasSize(1));
     }
-    
+
     @Test
     public void findByUserAndPostTest() {
         likePost.setPost(blogPost);
         likePost.setUser(user2);
         likePostRepository.save(likePost);
-        Optional<LikePost> likePostList=likePostRepository.findByUserAndPost(user2, blogPost);
+        Optional<LikePost> likePostList = likePostRepository.findByUserAndPost(user2, blogPost);
         Assert.assertThat(likePostList.get().getUser(), Matchers.is(user2));
     }
 
