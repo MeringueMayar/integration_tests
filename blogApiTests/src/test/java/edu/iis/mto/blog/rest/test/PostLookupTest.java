@@ -24,7 +24,7 @@ public class PostLookupTest extends FunctionalTests {
         JSONObject jsonObj = new JSONObject();
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
                 .body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_OK).and().body("size()", is(1))
-                .when().get(VALID_POST_LOOKUP_URL);
+                .when().get(LIKED_POST_LOOKUP_URL);
     }
 
     @Test
