@@ -2,6 +2,8 @@ package edu.iis.mto.blog.domain;
 
 import static edu.iis.mto.blog.builders.UserBuilder.user;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,6 +49,14 @@ public class BlogManagerTest {
         Mockito.verify(userRepository).save(userParam.capture());
         User user = userParam.getValue();
         Assert.assertThat(user.getAccountStatus(), Matchers.equalTo(AccountStatus.NEW));
+    }
+    
+    @Test(expected = EntityNotFoundException.class)
+    public void shouldThrowEntityNotFoundExceptionIfUserDoesntExists() {
+        Long postAndOwnerId = new Long(1);
+        Long likingUserId = new Long(2);
+        Mockito.when(userRepository.findOne(likingUserId)).thenReturn(null);      
+        blogService.addLikeToPost(likingUserId, postAndOwnerId);       
     }
     
     @Test(expected = DomainError.class)

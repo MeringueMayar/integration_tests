@@ -58,6 +58,9 @@ public class BlogDataFinder extends DomainService implements DataFinder {
     @Override
     public List<PostData> getUserPosts(Long userId) {
         User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("user doesn't exists");
+        }
         if (user.getAccountStatus() == AccountStatus.REMOVED) {
             throw new DomainError("this user is removed");
         }

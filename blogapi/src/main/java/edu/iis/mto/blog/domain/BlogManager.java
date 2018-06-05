@@ -2,6 +2,8 @@ package edu.iis.mto.blog.domain;
 
 import java.util.Optional;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,9 @@ public class BlogManager extends DomainService implements BlogService {
     @Override
     public Long createPost(Long userId, PostRequest postRequest) {
         User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("user doesn't exists");
+        }
         if (!(user.getAccountStatus() == AccountStatus.CONFIRMED)) {
             throw new DomainError("only confirmed users can add posts");
         }
@@ -42,6 +47,9 @@ public class BlogManager extends DomainService implements BlogService {
     @Override
     public boolean addLikeToPost(Long userId, Long postId) {
         User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new EntityNotFoundException("user doesn't exists");
+        }
         BlogPost post = blogPostRepository.findOne(postId);
         if (post.getUser().getId().equals(userId)) {
             throw new DomainError("cannot like own post");
