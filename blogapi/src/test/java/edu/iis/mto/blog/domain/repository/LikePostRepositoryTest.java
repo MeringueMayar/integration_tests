@@ -109,4 +109,26 @@ public class LikePostRepositoryTest {
 
         assertThat(likePostRepositoryByUserAndPost.orElse(null), Matchers.equalTo(null));
     }
+    @Test
+    public void findByUserAndPostWhenIsElementInRepository() {
+        userRepository.save(user);
+        blogPostRepository.save(post);
+
+        LikePost likePost = createLikePost(post, user);
+        likePostRepository.save(likePost);
+        post.getLikes().add(likePost);
+        blogPostRepository.save(post);
+
+        User otherUser = createUserMock("Imie", "imie@poczta.onet.pl");
+        userRepository.save(otherUser);
+        BlogPost otherPost = createBlogPostMockByUser(otherUser);
+        blogPostRepository.save(otherPost);
+        LikePost otherLikePost = createLikePost(otherPost, otherUser);
+        likePostRepository.save(otherLikePost);
+        otherPost.getLikes().add(otherLikePost);
+        blogPostRepository.save(otherPost);
+
+        Optional<LikePost> likePostRepositoryByUserAndPost = likePostRepository.findByUserAndPost(user, post);
+        assertThat(likePostRepositoryByUserAndPost.get(), Matchers.equalTo(likePost));
+    }
 }
