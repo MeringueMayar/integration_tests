@@ -54,6 +54,9 @@ public class BlogManagerTest {
 
     @Test
     public void creatingANewPostShouldSaveItWithNoLikes() {
+        User user = new UserBuilder().withID(1L).withAccountStatus(AccountStatus.CONFIRMED).build();
+        Mockito.when(userRepository.findOne(1L)).thenReturn(user);
+
         blogService.createPost(1L, new PostRequest("Test entry"));
         ArgumentCaptor<BlogPost> blogPostParam = ArgumentCaptor.forClass(BlogPost.class);
         Mockito.verify(blogPostRepository).save(blogPostParam.capture());
@@ -63,13 +66,8 @@ public class BlogManagerTest {
 
     @Test(expected = DomainError.class)
     public void addingALikeToOwnPostShouldThrowDomainError() {
-        User owner = new User();
-        owner.setId(1L);
+        User owner = new UserBuilder().withID(1L).withAccountStatus(AccountStatus.CONFIRMED).build();
         Mockito.when(userRepository.findOne(1L)).thenReturn(owner);
-
-        User liker = new User();
-        liker.setId(2L);
-        Mockito.when(userRepository.findOne(2L)).thenReturn(liker);
 
         BlogPost blogPost = new BlogPost();
         blogPost.setId(1L);
