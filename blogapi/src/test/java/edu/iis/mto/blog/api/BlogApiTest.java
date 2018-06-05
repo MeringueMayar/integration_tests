@@ -1,5 +1,6 @@
 package edu.iis.mto.blog.api;
 
+import static edu.iis.mto.blog.builders.UserRequestBuilder.userRequest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.iis.mto.blog.api.request.UserRequest;
+import edu.iis.mto.blog.builders.UserRequestBuilder;
 import edu.iis.mto.blog.dto.Id;
 import edu.iis.mto.blog.services.BlogService;
 import edu.iis.mto.blog.services.DataFinder;
@@ -42,10 +44,11 @@ public class BlogApiTest {
     @Test
     public void postBlogUserShouldResponseWithStatusCreatedAndNewUserId() throws Exception {
         Long newUserId = 1L;
-        UserRequest user = new UserRequest();
-        user.setEmail("john@domain.com");
-        user.setFirstName("John");
-        user.setLastName("Steward");
+        UserRequest user = userRequest()
+                .withEmail("john@domain.com")
+                .withFirstName("John")
+                .withLastName("Steward")
+                .build();
         Mockito.when(blogService.createUser(user)).thenReturn(newUserId);
         String content = writeJson(user);
 
@@ -56,11 +59,11 @@ public class BlogApiTest {
 
     @Test
     public void shouldReturnHttpStatusConflict() throws Exception {
-        Long newUserId = 1L;
-        UserRequest user = new UserRequest();
-        user.setEmail("john@domain.com");
-        user.setFirstName("John");
-        user.setLastName("Steward");
+        UserRequest user = userRequest()
+                .withEmail("john@domain.com")
+                .withFirstName("John")
+                .withLastName("Steward")
+                .build();
         Mockito.when(blogService.createUser(user)).thenThrow(DataIntegrityViolationException.class);
         String content = writeJson(user);
 

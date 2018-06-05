@@ -1,5 +1,7 @@
 package edu.iis.mto.blog.domain;
 
+import static edu.iis.mto.blog.builders.UserBuilder.user;
+
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.iis.mto.blog.api.request.UserRequest;
+import edu.iis.mto.blog.builders.UserBuilder;
 import edu.iis.mto.blog.domain.errors.DomainError;
 import edu.iis.mto.blog.domain.model.AccountStatus;
 import edu.iis.mto.blog.domain.model.BlogPost;
@@ -50,11 +53,12 @@ public class BlogManagerTest {
     public void addingLikeToPostByNotConfirmedUserShouldThrowDomainError() {
         Long postAndOwnerId = new Long(1);
         Long likingUserId = new Long(2);
-        User likingUser = new User();
-        likingUser.setId(likingUserId);
-        likingUser.setAccountStatus(AccountStatus.NEW);
-        User postOwner = new User();
-        postOwner.setId(postAndOwnerId);
+        User likingUser = user()
+                .withId(likingUserId)
+                .build();
+        User postOwner = user()
+                .withId(postAndOwnerId)
+                .build();
         BlogPost post = new BlogPost();
         post.setId(postAndOwnerId);
         post.setUser(postOwner);

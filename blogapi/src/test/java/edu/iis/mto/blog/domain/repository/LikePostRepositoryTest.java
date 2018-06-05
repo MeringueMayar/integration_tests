@@ -1,5 +1,7 @@
 package edu.iis.mto.blog.domain.repository;
 
+import static edu.iis.mto.blog.builders.UserBuilder.user;
+
 import java.util.List;
 
 import org.hamcrest.Matchers;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import edu.iis.mto.blog.builders.UserBuilder;
 import edu.iis.mto.blog.domain.model.AccountStatus;
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
@@ -36,14 +39,14 @@ public class LikePostRepositoryTest {
     
     @Before
     public void setUp() {
-        user = new User();
-        user.setFirstName("Jan");
-        user.setEmail("john@domain.com");
-        user.setAccountStatus(AccountStatus.NEW);
-        user2 = new User();
-        user2.setFirstName("Anna");
-        user2.setEmail("anna@domain.com");
-        user2.setAccountStatus(AccountStatus.NEW);
+        user = user()
+                .withFirstName("Jan")
+                .withEmail("john@domain.com")
+                .build();
+        user2 = user()
+                .withFirstName("Anna")
+                .withEmail("anna@domain.com")
+                .build();
         post = new BlogPost();
         post.setUser(user);
         post.setEntry("test");

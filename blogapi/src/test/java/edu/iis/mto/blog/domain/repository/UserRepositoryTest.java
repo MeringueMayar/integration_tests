@@ -1,5 +1,7 @@
 package edu.iis.mto.blog.domain.repository;
 
+import static edu.iis.mto.blog.builders.UserBuilder.user;
+
 import java.util.List;
 
 import org.hamcrest.Matchers;
@@ -26,14 +28,14 @@ public class UserRepositoryTest {
 
     @Before
     public void setUp() {
-        user = new User();
-        user.setFirstName("Jan");
-        user.setEmail("john@domain.com");
-        user.setAccountStatus(AccountStatus.NEW);
-        user2 = new User();
-        user2.setFirstName("Anna");
-        user2.setEmail("anna@domain.com");
-        user2.setAccountStatus(AccountStatus.NEW);
+        user = user()
+                .withFirstName("Jan")
+                .withEmail("john@domain.com")
+                .build();
+        user2 = user()
+                .withFirstName("Anna")
+                .withEmail("anna@domain.com")
+                .build();
     }
 
     @Test
