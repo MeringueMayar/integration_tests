@@ -17,6 +17,7 @@ import edu.iis.mto.blog.domain.model.AccountStatus;
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
 import edu.iis.mto.blog.domain.model.User;
+import edu.iis.mto.blog.domain.model.UserBuilder;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -29,22 +30,15 @@ public class LikePostRepositoryTest {
     @Autowired
     BlogPostRepository blogPostRepository;
     
+    
     User user;
     User user2;
     BlogPost blogPost;
     LikePost likePost;
     @Before
     public void setUp() {
-        user = new User();
-        user.setFirstName("Jan");
-        user.setEmail("john@domain.com");
-        user.setAccountStatus(AccountStatus.NEW);
-        //
-        user2=new User();
-        user2.setFirstName("Tomek");
-        user2.setEmail("tomek@toms.com");
-        user2.setAccountStatus(AccountStatus.NEW);
-        //
+        user = new UserBuilder().withFirstName("Tomek").build();
+        user2= new UserBuilder().withFirstName("Jan").withEmail("jan@test.pl").build();
         userRepository.save(user);
         userRepository.save(user2);
         
