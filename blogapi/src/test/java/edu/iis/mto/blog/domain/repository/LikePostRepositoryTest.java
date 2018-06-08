@@ -78,31 +78,72 @@ public class LikePostRepositoryTest {
     public void shouldStoreNewLike() {
         likes.add(like);
         LikePost persistedLike = repository.save(like);
+
         Assert.assertThat(persistedLike.getId(), Matchers.notNullValue());
     }
 
     @Test
     public void likedPostShouldHaveAddedNewLike() {
         likes.add(like);
-        LikePost persistedLike = entityManager.persist(like);
+        LikePost persistedLike = repository.save(like);
+
         Assert.assertThat(persistedPost.getLikes().contains(persistedLike), Matchers.equalTo(true));
     }
 
     @Test
     public void searchingWithCorrectDataShouldReturnLike() {
         likes.add(like);
-        LikePost persistedLike = entityManager.persist(like);
+        LikePost persistedLike = repository.save(like);
+
         Optional<LikePost> searchedLikes = repository.findByUserAndPost(persistedUser, persistedPost);
         Assert.assertThat(searchedLikes.get(), Matchers.equalTo(persistedLike));
     }
 
     @Test
-    public void searchingWithIncorrectDataShouldReturnLike() {
+    public void searchingWithIncorrectDataShouldNotReturnLike() {
         likes.add(like);
-        LikePost persistedLike = entityManager.persist(like);
+        repository.save(like);
+        User incorrectUser = setUpIncorecctUser();
+        BlogPost incorrectBlogPost = setUpIncorrectBlogPost();
 
-        Optional<LikePost> searchedLikes = repository.findByUserAndPost(new User(), new BlogPost());
-        Assert.assertThat(searchedLikes, Matchers.nullValue());
+        Optional<LikePost> searchedLikes = repository.findByUserAndPost(incorrectUser, incorrectBlogPost);
+        Assert.assertThat(searchedLikes.isPresent(), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void searchingWithIncorrectUserShouldNotReturnLike() {
+        likes.add(like);
+        entityManager.persist(like);
+        User incorrectUser = setUpIncorecctUser();
+
+        Optional<LikePost> searchedLikes = repository.findByUserAndPost(incorrectUser, persistedPost);
+        Assert.assertThat(searchedLikes.isPresent(), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void searchingWithIncorrectPostShouldNotReturnLike() {
+        likes.add(like);
+        entityManager.persist(like);
+        BlogPost incorrectBlogPost = setUpIncorrectBlogPost();
+
+        Optional<LikePost> searchedLikes = repository.findByUserAndPost(persistedUser, incorrectBlogPost);
+        Assert.assertThat(searchedLikes.isPresent(), Matchers.equalTo(false));
+    }
+
+    private User setUpIncorecctUser() {
+        User incorrectUser = new User();
+        incorrectUser.setEmail("now@n.pl");
+        incorrectUser.setLastName("Kowalski");
+        incorrectUser.setFirstName("Tomasz");
+        incorrectUser.setAccountStatus(AccountStatus.NEW);
+        return entityManager.persist(incorrectUser);
+    }
+
+    private BlogPost setUpIncorrectBlogPost() {
+        BlogPost incorrectBlogPost = new BlogPost();
+        incorrectBlogPost.setUser(persistedUser);
+        incorrectBlogPost.setEntry("nowy");
+        return entityManager.persist(incorrectBlogPost);
     }
 
 }
