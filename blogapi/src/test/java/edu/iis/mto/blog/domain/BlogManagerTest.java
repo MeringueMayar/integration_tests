@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.iis.mto.blog.api.request.UserRequest;
+import edu.iis.mto.blog.domain.errors.DomainError;
 import edu.iis.mto.blog.domain.model.AccountStatus;
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
@@ -56,7 +57,7 @@ public class BlogManagerTest {
     @Test
     public void confirmedUserShouldBeAbleToLikePost() {
         User blogPostAuthor = setUpBlogPostAuthor();
-        User blogUser = setUpBlogUser();
+        User blogUser = setUpBlogUser(AccountStatus.CONFIRMED);
         BlogPost post = setUpBlogPost(blogPostAuthor);
         Optional<LikePost> likes = Optional.empty();
 
@@ -69,6 +70,22 @@ public class BlogManagerTest {
         Assert.assertThat(success, Matchers.equalTo(true));
     }
 
+    @Test(expected = DomainError.class)
+    public void newUserShouldNotBeAbleToLikePost() {
+        User blogPostAuthor = setUpBlogPostAuthor();
+        User blogUser = setUpBlogUser(AccountStatus.NEW);
+        BlogPost post = setUpBlogPost(blogPostAuthor);
+        Optional<LikePost> likes = Optional.empty();
+
+        Mockito.when(userRepository.findOne(blogPostAuthor.getId())).thenReturn(blogPostAuthor);
+        Mockito.when(userRepository.findOne(blogUser.getId())).thenReturn(blogUser);
+        Mockito.when(blogPostRepository.findOne(post.getId())).thenReturn(post);
+        Mockito.when(likePostRepository.findByUserAndPost(blogUser, post)).thenReturn(likes);
+
+        boolean success = blogService.addLikeToPost(blogUser.getId(), post.getId());
+        Assert.assertThat(success, Matchers.equalTo(false));
+    }
+
     private User setUpBlogPostAuthor() {
         User blogPostAuthor = new User();
         blogPostAuthor.setAccountStatus(AccountStatus.CONFIRMED);
@@ -79,9 +96,9 @@ public class BlogManagerTest {
         return blogPostAuthor;
     }
 
-    private User setUpBlogUser() {
+    private User setUpBlogUser(AccountStatus accountStatus) {
         User blogUser = new User();
-        blogUser.setAccountStatus(AccountStatus.CONFIRMED);
+        blogUser.setAccountStatus(accountStatus);
         blogUser.setFirstName("Tomasz");
         blogUser.setLastName("Kowalski");
         blogUser.setEmail("tom@domain.com");
