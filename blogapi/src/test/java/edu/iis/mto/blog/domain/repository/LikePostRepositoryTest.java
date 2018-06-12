@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -41,10 +42,10 @@ public class LikePostRepositoryTest{
         mockPost = createPost(mockUser);
     }
 
-    private BlogPost createPost(User mockUser) {
+    private BlogPost createPost(User user) {
         BlogPost post = new BlogPost();
         post.setEntry("test");
-        post.setUser(mockUser);
+        post.setUser(user);
         post.setLikes(new ArrayList<>());
         blogPostRepository.save(post);
         return post;
@@ -88,8 +89,6 @@ public class LikePostRepositoryTest{
 
     @Test
     public void addingLikeShouldBePossibleAndValid(){
-        mockUser =createUser("Jan", "John@example.com");
-        mockPost = createPost(mockUser);
         LikePost like = new LikePost();
         initLike(mockUser, mockPost, like);
         List<LikePost> likes = likePostRepository.findAll();
@@ -97,7 +96,19 @@ public class LikePostRepositoryTest{
         Assert.assertThat(likes.get(0).getUser(), Matchers.equalTo(like.getUser()));
         Assert.assertThat(likes.get(0).getPost(), Matchers.equalTo(like.getPost()));
         Assert.assertThat(likes.get(0), Matchers.equalTo(like));
-
+    }
+    
+    @Test
+    public void editingLikeShouldBePossibleAndValid(){
+        LikePost like = new LikePost();
+        initLike(mockUser, mockPost, like);
+        User otherUser = createUser("Jack", "Jack@example.com");
+        BlogPost otherPost = createPost(otherUser);
+        initLike(otherUser, otherPost, likePostRepository.findAll().get(0));
+        like = likePostRepository.findAll().get(0);
+        assertThat(like.getPost(), Matchers.equalTo(otherPost));
+        assertThat(like.getPost(), Matchers.not(equalTo(mockPost)));
+        
     }
     private void initLike(User user, BlogPost post, LikePost like)
     {
