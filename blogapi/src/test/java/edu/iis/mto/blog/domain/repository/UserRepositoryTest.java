@@ -33,10 +33,9 @@ public class UserRepositoryTest {
         user = new User();
         user.setFirstName("Jan");
         user.setEmail("john@domain.com");
-        user.setAccountStatus(AccountStatus.NEW);
+        user.setAccountStatus(AccountStatus.REMOVED);
     }
 
-    @Ignore
     @Test
     public void shouldFindNoUsersIfRepositoryIsEmpty() {
 
@@ -44,7 +43,6 @@ public class UserRepositoryTest {
 
         Assert.assertThat(users, Matchers.hasSize(0));
     }
-
     @Ignore
     @Test
     public void shouldFindOneUsersIfRepositoryContainsOneUserEntity() {
