@@ -52,7 +52,7 @@ public class UserRepositoryTest {
         Assert.assertThat(users, Matchers.hasSize(1));
         Assert.assertThat(users.get(0).getEmail(), Matchers.equalTo(persistedUser.getEmail()));
     }
-    
+
     @Test
     public void shouldStoreANewUser() {
 
@@ -61,4 +61,18 @@ public class UserRepositoryTest {
         Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
     }
 
+    @Test
+    public void shouldFindCreatedUser()
+    {
+        User persistedUser = repository.save(user);
+        List<User> userFound = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jan", "Kowal", "john@domain.com");
+        Assert.assertThat(userFound, Matchers.hasSize(1));
+    }
+    @Test
+    public void shouldNotFindNotCreatedUser()
+    {
+        User persistedUser = repository.save(user);
+        List<User> userFound = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jean", "Kowal", "jean@domain.com");
+        Assert.assertThat(userFound, Matchers.hasSize(0));
+    }
 }
