@@ -43,7 +43,7 @@ public class UserRepositoryTest {
 
         Assert.assertThat(users, Matchers.hasSize(0));
     }
-    @Ignore
+
     @Test
     public void shouldFindOneUsersIfRepositoryContainsOneUserEntity() {
         User persistedUser = entityManager.persist(user);
@@ -52,8 +52,7 @@ public class UserRepositoryTest {
         Assert.assertThat(users, Matchers.hasSize(1));
         Assert.assertThat(users.get(0).getEmail(), Matchers.equalTo(persistedUser.getEmail()));
     }
-
-    @Ignore
+    
     @Test
     public void shouldStoreANewUser() {
 
