@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.mockito.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -86,8 +87,17 @@ public class LikePostRepositoryTest{
     }
 
     @Test
-    public void addingLikeShouldBePossible(){
-        
+    public void addingLikeShouldBePossibleAndValid(){
+        mockUser =createUser("Jan", "John@example.com");
+        mockPost = createPost(mockUser);
+        LikePost like = new LikePost();
+        initLike(mockUser, mockPost, like);
+        List<LikePost> likes = likePostRepository.findAll();
+        Assert.assertThat(likes, Matchers.hasSize(1));
+        Assert.assertThat(likes.get(0).getUser(), Matchers.equalTo(like.getUser()));
+        Assert.assertThat(likes.get(0).getPost(), Matchers.equalTo(like.getPost()));
+        Assert.assertThat(likes.get(0), Matchers.equalTo(like));
+
     }
     private void initLike(User user, BlogPost post, LikePost like)
     {
