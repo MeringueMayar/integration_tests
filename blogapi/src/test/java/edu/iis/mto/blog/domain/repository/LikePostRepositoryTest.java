@@ -5,6 +5,7 @@ import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
 import edu.iis.mto.blog.domain.model.User;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +15,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.mockito.*;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -42,6 +45,7 @@ public class LikePostRepositoryTest{
         post.setEntry("test");
         post.setUser(mockUser);
         post.setLikes(new ArrayList<>());
+        blogPostRepository.save(post);
         return post;
     }
 
@@ -50,19 +54,15 @@ public class LikePostRepositoryTest{
         user.setEmail(mail);
         user.setFirstName(name);
         user.setAccountStatus(AccountStatus.NEW);
+        userRepository.save(user);
         return user;
     }
 
     @Test
-    public void findingUserByPostShouldReturnUser()
+    public void findingByUserAndPostShouldReturnValidLikePost()
     {
         LikePost like = new LikePost();
-        userRepository.save(mockUser);
-        blogPostRepository.save(mockPost);
-        like.setUser(mockUser);
-        like.setPost(mockPost);
-        likePostRepository.save(like);
-        mockPost.getLikes().add(like);
+        initLike(mockUser, mockPost, like);
         User otherUser = createUser("John", "ex@example.com");
         userRepository.save(otherUser);
         BlogPost otherPost = createPost(otherUser);
@@ -71,12 +71,30 @@ public class LikePostRepositoryTest{
         assertThat(result.get(), Matchers.equalTo(like));
     }
 
-    private void initPost(User user, BlogPost post, LikePost like)
+    @Test
+    public void findingOtherUserAndPostShouldntReturnAnything()
+    {
+        LikePost like = new LikePost();
+        initLike(mockUser, mockPost, like);
+        User otherUser = createUser("John", "ex@example.com");
+        userRepository.save(otherUser);
+        BlogPost otherPost = createPost(otherUser);
+        blogPostRepository.save(otherPost);
+        Optional<LikePost> result = likePostRepository.findByUserAndPost(otherUser, otherPost);
+        assertThat(result.orElse(null), Matchers.equalTo(null));
+
+    }
+
+    @Test
+    public void addingLikeShouldBePossible(){
+        
+    }
+    private void initLike(User user, BlogPost post, LikePost like)
     {
         if (like != null)
         {
-            like.setUser(mockUser);
-            like.setPost(mockPost);
+            like.setUser(user);
+            like.setPost(post);
             likePostRepository.save(like);
             mockPost.getLikes().add(like);
 
