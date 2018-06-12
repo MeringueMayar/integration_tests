@@ -2,6 +2,7 @@ package edu.iis.mto.blog.domain;
 
 import java.util.Optional;
 
+import edu.iis.mto.blog.dto.Id;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,9 @@ public class BlogManager extends DomainService implements BlogService {
         BlogPost post = blogPostRepository.findOne(postId);
         if (post.getUser().getId().equals(userId)) {
             throw new DomainError("cannot like own post");
+        }
+        if (user.getAccountStatus() != AccountStatus.CONFIRMED) {
+            throw new DomainError("only confirmed users can like posts");
         }
         Optional<LikePost> existingLikeForPost = likePostRepository.findByUserAndPost(user, post);
         if (existingLikeForPost.isPresent()) {
