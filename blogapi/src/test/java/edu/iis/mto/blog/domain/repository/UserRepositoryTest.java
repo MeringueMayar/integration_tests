@@ -69,6 +69,13 @@ public class UserRepositoryTest {
         Assert.assertThat(userFound, Matchers.hasSize(1));
     }
     @Test
+    public void shouldFindCreatedUserByPartOfName()
+    {
+        User persistedUser = repository.save(user);
+        List<User> userFound = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("J", "Kowal", "john@domain");
+        Assert.assertThat(userFound, Matchers.hasSize(1));
+    }
+    @Test
     public void shouldNotFindNotCreatedUser()
     {
         User persistedUser = repository.save(user);
