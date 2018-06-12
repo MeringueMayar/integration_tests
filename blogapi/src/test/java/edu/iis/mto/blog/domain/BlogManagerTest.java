@@ -72,6 +72,19 @@ public class BlogManagerTest {
         Mockito.when(blogPostRepository.findOne(1L)).thenReturn(post);
         blogService.addLikeToPost(liker.getId(), post.getId());
     }
+
+    @Test(expected = DomainError.class)
+    public void addingALikeToOwnPostShouldThrowDomainError() {
+        User user = createUser("Jon","jon@example.com");
+        user.setId(1L);
+        Mockito.when(userRepository.findOne(1L)).thenReturn(user);
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(1L);
+        blogPost.setUser(user);
+        Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
+        blogService.addLikeToPost(user.getId(), blogPost.getId());
+    }
+
     private BlogPost createPost(User user) {
         BlogPost post = new BlogPost();
         post.setEntry("test");
