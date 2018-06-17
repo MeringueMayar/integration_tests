@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import javax.persistence.EntityNotFoundException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -41,14 +42,20 @@ public class BlogApiTest {
     @MockBean
     private DataFinder finder;
 
-    @Test
-    public void postBlogUserShouldResponseWithStatusCreatedAndNewUserId() throws Exception {
-        Long newUserId = 1L;
-        UserRequest user = userRequest()
+    private UserRequest user;
+    
+    @Before
+    public void setUp() {
+        user = userRequest()
                 .withEmail("john@domain.com")
                 .withFirstName("John")
                 .withLastName("Steward")
                 .build();
+    }
+    
+    @Test
+    public void postBlogUserShouldResponseWithStatusCreatedAndNewUserId() throws Exception {
+        Long newUserId = 1L;
         Mockito.when(blogService.createUser(user)).thenReturn(newUserId);
         String content = writeJson(user);
 
@@ -59,11 +66,6 @@ public class BlogApiTest {
 
     @Test
     public void shouldReturnHttpStatusConflict() throws Exception {
-        UserRequest user = userRequest()
-                .withEmail("john@domain.com")
-                .withFirstName("John")
-                .withLastName("Steward")
-                .build();
         Mockito.when(blogService.createUser(user)).thenThrow(DataIntegrityViolationException.class);
         String content = writeJson(user);
 
