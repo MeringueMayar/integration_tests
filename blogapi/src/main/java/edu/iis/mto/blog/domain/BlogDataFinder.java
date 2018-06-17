@@ -37,7 +37,7 @@ public class BlogDataFinder extends DomainService implements DataFinder {
                 searchString, searchString, searchString);
 
         return users.stream().filter(user -> user.getAccountStatus() != AccountStatus.REMOVED)
-                .map(user -> mapper.mapToDto(user)).collect(Collectors.toList());
+                .map(mapper::mapToDto).collect(Collectors.toList());
 
     }
 
@@ -60,7 +60,7 @@ public class BlogDataFinder extends DomainService implements DataFinder {
             throw new DomainError("account removed");
         }
         List<BlogPost> posts = blogPostRepository.findByUser(user);
-        return posts.stream().map(post -> mapper.mapToDto(post)).collect(Collectors.toList());
+        return posts.stream().map(mapper::mapToDto).collect(Collectors.toList());
     }
 
 }

@@ -62,7 +62,7 @@ public class BlogManagerTest {
 
     }
 
-    @Test(expected = DomainError.class)
+    @Test
     public void addLikeByUnconfirmedUserShouldThrowDomainError() {
 
         // create owner of post
@@ -83,8 +83,13 @@ public class BlogManagerTest {
 
         when(userRepository.findOne(likerId)).thenReturn(liker);
         when(postRepository.findOne(ownerId)).thenReturn(blogPost);
-
+        
+        try {
         blogService.addLikeToPost(likerId, ownerId);
-
+        }
+        catch(Exception e) {
+        	Assert.assertThat(e.getClass(), Matchers.equalTo(DomainError.class));
+        	Assert.assertThat(e.getMessage(), Matchers.equalTo("cannot like post because you are not confirmed user"));
+        }
     }
 }
