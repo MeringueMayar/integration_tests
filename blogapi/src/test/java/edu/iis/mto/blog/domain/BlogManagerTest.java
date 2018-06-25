@@ -1,5 +1,9 @@
 package edu.iis.mto.blog.domain;
 
+import static edu.iis.mto.blog.builders.UserBuilder.user;
+
+import javax.persistence.EntityNotFoundException;
+
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -12,8 +16,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import edu.iis.mto.blog.api.request.UserRequest;
+import edu.iis.mto.blog.builders.UserBuilder;
+import edu.iis.mto.blog.domain.errors.DomainError;
 import edu.iis.mto.blog.domain.model.AccountStatus;
+import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.User;
+import edu.iis.mto.blog.domain.repository.BlogPostRepository;
 import edu.iis.mto.blog.domain.repository.UserRepository;
 import edu.iis.mto.blog.mapper.DataMapper;
 import edu.iis.mto.blog.services.BlogService;
@@ -25,6 +33,9 @@ public class BlogManagerTest {
     @MockBean
     UserRepository userRepository;
 
+    @MockBean
+    BlogPostRepository postRepository;
+    
     @Autowired
     DataMapper dataMapper;
 
@@ -38,6 +49,32 @@ public class BlogManagerTest {
         Mockito.verify(userRepository).save(userParam.capture());
         User user = userParam.getValue();
         Assert.assertThat(user.getAccountStatus(), Matchers.equalTo(AccountStatus.NEW));
+    }
+    
+    @Test(expected = EntityNotFoundException.class)
+    public void shouldThrowEntityNotFoundExceptionIfUserDoesntExists() {
+        Long postAndOwnerId = new Long(1);
+        Long likingUserId = new Long(2);
+        Mockito.when(userRepository.findOne(likingUserId)).thenReturn(null);      
+        blogService.addLikeToPost(likingUserId, postAndOwnerId);       
+    }
+    
+    @Test(expected = DomainError.class)
+    public void addingLikeToPostByNotConfirmedUserShouldThrowDomainError() {
+        Long postAndOwnerId = new Long(1);
+        Long likingUserId = new Long(2);
+        User likingUser = user()
+                .withId(likingUserId)
+                .build();
+        User postOwner = user()
+                .withId(postAndOwnerId)
+                .build();
+        BlogPost post = new BlogPost();
+        post.setId(postAndOwnerId);
+        post.setUser(postOwner);
+        Mockito.when(userRepository.findOne(likingUserId)).thenReturn(likingUser);      
+        Mockito.when(postRepository.findOne(postAndOwnerId)).thenReturn(post);
+        blogService.addLikeToPost(likingUserId, postAndOwnerId);
     }
 
 }
