@@ -1,5 +1,6 @@
 package edu.iis.mto.blog.domain;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import edu.iis.mto.blog.domain.errors.DomainError;
+import edu.iis.mto.blog.domain.model.AccountStatus;
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.User;
 import edu.iis.mto.blog.dto.PostData;
@@ -33,20 +36,31 @@ public class BlogDataFinder extends DomainService implements DataFinder {
         List<User> users = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(
                 searchString, searchString, searchString);
 
-        return users.stream().map(user -> mapper.mapToDto(user)).collect(Collectors.toList());
+        return users.stream().filter(user -> user.getAccountStatus() != AccountStatus.REMOVED)
+                .map(mapper::mapToDto).collect(Collectors.toList());
+
     }
 
     @Override
     public PostData getPost(Long userId) {
         BlogPost blogPost = blogPostRepository.findOne(userId);
+        if (blogPost == null) {
+            throw new EntityNotFoundException(String.format("blogpost by user id %1 not exist", userId));
+        }
         return mapper.mapToDto(blogPost);
     }
 
     @Override
     public List<PostData> getUserPosts(Long userId) {
         User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw new EntityNotFoundException(String.format("user with id %1 does not exist", userId));
+        }
+        if (user.getAccountStatus() == AccountStatus.REMOVED) {
+            throw new DomainError("account removed");
+        }
         List<BlogPost> posts = blogPostRepository.findByUser(user);
-        return posts.stream().map(post -> mapper.mapToDto(post)).collect(Collectors.toList());
+        return posts.stream().map(mapper::mapToDto).collect(Collectors.toList());
     }
 
 }
