@@ -1,5 +1,6 @@
 package edu.iis.mto.blog.domain;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,9 @@ public class BlogDataFinder extends DomainService implements DataFinder {
         if (user == null) {
             throw new EntityNotFoundException(String.format("user with id %1 does not exists", userId));
         }
+        if (user.getAccountStatus() == AccountStatus.REMOVED) {
+            throw new DomainError("user has been removed");
+        }
         return mapper.mapToDto(user);
     }
 
@@ -34,7 +38,12 @@ public class BlogDataFinder extends DomainService implements DataFinder {
     public List<UserData> findUsers(String searchString) {
         List<User> users = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(
                 searchString, searchString, searchString);
-
+        for (Iterator<User> iterator = users.iterator(); iterator.hasNext();) {
+            User user = iterator.next();
+            if (user.getAccountStatus() == AccountStatus.REMOVED) {
+                iterator.remove();
+            }
+        }
         return users.stream().map(user -> mapper.mapToDto(user)).collect(Collectors.toList());
     }
 
