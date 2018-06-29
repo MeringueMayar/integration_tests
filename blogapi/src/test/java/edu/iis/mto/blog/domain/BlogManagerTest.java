@@ -70,7 +70,7 @@ public class BlogManagerTest {
         Assert.assertThat(success, Matchers.equalTo(true));
     }
 
-    @Test(expected = DomainError.class)
+    @Test
     public void newUserShouldNotBeAbleToLikePost() {
         User blogPostAuthor = setUpBlogPostAuthor();
         User blogUser = setUpBlogUser(AccountStatus.NEW);
@@ -82,8 +82,12 @@ public class BlogManagerTest {
         Mockito.when(blogPostRepository.findOne(post.getId())).thenReturn(post);
         Mockito.when(likePostRepository.findByUserAndPost(blogUser, post)).thenReturn(likes);
 
-        boolean success = blogService.addLikeToPost(blogUser.getId(), post.getId());
-        Assert.assertThat(success, Matchers.equalTo(false));
+        try {
+            blogService.addLikeToPost(blogUser.getId(), post.getId());
+        } catch (Exception e) {
+            Assert.assertThat(e.getClass(), Matchers.equalTo(DomainError.class));
+            Assert.assertThat(e.getMessage(), Matchers.equalTo("new users can't like posts"));
+        }
     }
 
     private User setUpBlogPostAuthor() {
