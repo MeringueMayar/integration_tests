@@ -26,6 +26,7 @@ import edu.iis.mto.blog.mapper.DataMapper;
 import edu.iis.mto.blog.services.BlogService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,6 +38,9 @@ public class BlogManagerTest {
     @MockBean
     BlogPostRepository blogPostRepository;
 
+    @MockBean
+    LikePostRepository likePostRepository;
+
     @Autowired
     DataMapper dataMapper;
 
@@ -45,7 +49,7 @@ public class BlogManagerTest {
 
     @Test
     public void creatingNewUserShouldSetAccountStatusToNEW() {
-        Long userID = blogService.createUser(new UserRequest("John", "Steward", "john@domain.com"));
+        blogService.createUser(new UserRequest("John", "Steward", "john@domain.com"));
         ArgumentCaptor<User> userParam = ArgumentCaptor.forClass(User.class);
         Mockito.verify(userRepository).save(userParam.capture());
         User user = userParam.getValue();
@@ -91,5 +95,28 @@ public class BlogManagerTest {
         Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
 
         blogService.addLikeToPost(liker.getId(), blogPost.getId());
+    }
+
+    @Test
+    public void addingALikeByConfirmedAccountShouldSaveIt() {
+        User owner = new UserBuilder().withID(1L).build();
+        Mockito.when(userRepository.findOne(1L)).thenReturn(owner);
+
+        User liker = new UserBuilder().withID(2L).withAccountStatus(AccountStatus.CONFIRMED).build();
+        Mockito.when(userRepository.findOne(2L)).thenReturn(liker);
+
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(1L);
+        blogPost.setUser(owner);
+        Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
+
+        Mockito.when(likePostRepository.findByUserAndPost(liker, blogPost)).thenReturn(Optional.empty());
+        blogService.addLikeToPost(liker.getId(), blogPost.getId());
+
+        ArgumentCaptor<LikePost> likePostParam = ArgumentCaptor.forClass(LikePost.class);
+        Mockito.verify(likePostRepository).save(likePostParam.capture());
+        LikePost likePost = likePostParam.getValue();
+        Assert.assertThat(likePost.getPost(), Matchers.is(blogPost));
+        Assert.assertThat(likePost.getUser(), Matchers.is(liker));
     }
 }
