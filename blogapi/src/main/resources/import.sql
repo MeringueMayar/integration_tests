@@ -2,7 +2,9 @@
 insert into user (id, account_status, email, first_name, last_name) values (null, 'CONFIRMED', 'john@domain.com', 'John', 'Steward')
 insert into user (id, account_status, email, first_name) values (null, 'NEW', 'brian@domain.com', 'Brian')
 insert into user (id, account_status, email, first_name) values (null, 'CONFIRMED', 'jane@domain.com', 'Jane')
-insert into user (id, account_status, email, first_name) values (null, 'CONFIRMED', 'postmaker@domain.com', 'Jane')
+insert into user (id, account_status, email, first_name) values (null, 'CONFIRMED', 'postmaker@domain.com', 'PostMaker')
+insert into user (id, account_status, email, first_name) values (null, 'REMOVED', 'removed@domain.com', 'Removed')
 
 insert into blog_post values (null, 'Test entry by confirmed user', 1)
 insert into blog_post values (null, 'Test entry by confirmed user', 4)
+insert into blog_post values (null, 'Test entry by removed user', 5)
