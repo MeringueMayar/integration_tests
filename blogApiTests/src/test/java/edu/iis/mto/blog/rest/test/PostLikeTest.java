@@ -6,10 +6,13 @@ import org.apache.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+
 public class PostLikeTest extends  FunctionalTests{
     private static final String NON_OWN_LIKE_POST_REQUEST = "/blog/user/3/like/1";
     private static final String LIKE_OWN_POST_REQUEST = "/blog/user/1/like/1";
-    
+    private static final String OWN_POST_REQUEST = "/blog/user/1/post";
+
     @Test
     public void likingNonOwnedPostShouldBeOK() {
         JSONObject jsonObject = new JSONObject();
@@ -20,5 +23,13 @@ public class PostLikeTest extends  FunctionalTests{
     public void likingOwnsPostShouldReturnBadRequest() {
         JSONObject jsonObject = new JSONObject();
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8").body(jsonObject.toString()).expect().log().all().statusCode(HttpStatus.SC_BAD_REQUEST).when().post(LIKE_OWN_POST_REQUEST);
+    }
+    @Test
+    public void likingSamePostTwiceShouldNotChangePostStatus() {
+        JSONObject jsonObj = new JSONObject();
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8").body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_OK).when().post(NON_OWN_LIKE_POST_REQUEST);
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8").body(jsonObj.toString()).expect().log().all().statusCode(HttpStatus.SC_OK).when().post(NON_OWN_LIKE_POST_REQUEST);
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8").when().get(OWN_POST_REQUEST).then().body("likesCount", hasItem(1));
+
     }
 }
