@@ -58,7 +58,6 @@ public class UserRepositoryTest {
 
     @Test
     public void shouldStoreANewUser() {
-
         User persistedUser = repository.save(user);
 
         Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
@@ -67,11 +66,17 @@ public class UserRepositoryTest {
 
     @Test
     public void searchingForUser_shouldFindCorrectUser_givenFirstName(){
-        repository.save(user);
+        User persistedUser = repository.save(user);
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(user.getFirstName(), "dummy", "dummy");
 
-        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(user.getFirstName(), "", "");
-
-        assertThat(foundUsers.size(), Matchers.equalTo(1));
+        assertThat(foundUsers.get(0), Matchers.equalTo(persistedUser));
     }
 
+    @Test
+    public void searchingForUser_shouldNotFindCorrectUser_givenIncorrectFirstName(){
+        User persistedUser = repository.save(user);
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Pszemek", "dummy", "dummy");
+
+        assertThat(foundUsers.size(), Matchers.equalTo(0));
+    }
 }
