@@ -30,6 +30,8 @@ public class UserRepositoryTest {
 
     private User user;
 
+    private final String DUMMY_STRING = "dummy";
+
     @Before
     public void setUp() {
         user = new User();
@@ -67,7 +69,7 @@ public class UserRepositoryTest {
     @Test
     public void searchingForUser_shouldFindCorrectUser_givenFirstName(){
         User persistedUser = repository.save(user);
-        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(user.getFirstName(), "dummy", "dummy");
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(user.getFirstName(), DUMMY_STRING, DUMMY_STRING);
 
         assertThat(foundUsers.get(0), Matchers.equalTo(persistedUser));
     }
@@ -75,7 +77,23 @@ public class UserRepositoryTest {
     @Test
     public void searchingForUser_shouldNotFindCorrectUser_givenIncorrectFirstName(){
         User persistedUser = repository.save(user);
-        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Pszemek", "dummy", "dummy");
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Pszemek", DUMMY_STRING, DUMMY_STRING);
+
+        assertThat(foundUsers.size(), Matchers.equalTo(0));
+    }
+
+    @Test
+    public void searchingForUser_shouldFindCorrectUser_givenLastName(){
+        User persistedUser = repository.save(user);
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(DUMMY_STRING, user.getLastName(), DUMMY_STRING);
+
+        assertThat(foundUsers.get(0), Matchers.equalTo(persistedUser));
+    }
+
+    @Test
+    public void searchingForUser_shouldNotFindCorrectUser_givenIncorrectLastName(){
+        User persistedUser = repository.save(user);
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(DUMMY_STRING, "Placek", DUMMY_STRING);
 
         assertThat(foundUsers.size(), Matchers.equalTo(0));
     }
