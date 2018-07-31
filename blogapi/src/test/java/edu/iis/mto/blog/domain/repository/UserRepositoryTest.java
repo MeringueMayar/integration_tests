@@ -97,4 +97,20 @@ public class UserRepositoryTest {
 
         assertThat(foundUsers.size(), Matchers.equalTo(0));
     }
+
+    @Test
+    public void searchingForUser_shouldFindCorrectUser_givenEmail(){
+        User persistedUser = repository.save(user);
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(DUMMY_STRING, DUMMY_STRING, user.getEmail());
+
+        assertThat(foundUsers.get(0), Matchers.equalTo(persistedUser));
+    }
+
+    @Test
+    public void searchingForUser_shouldNotFindCorrectUser_givenIncorrectEmail(){
+        User persistedUser = repository.save(user);
+        List<User> foundUsers = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase(DUMMY_STRING, DUMMY_STRING, "dr4g0n5l43r@o2.pl");
+
+        assertThat(foundUsers.size(), Matchers.equalTo(0));
+    }
 }
