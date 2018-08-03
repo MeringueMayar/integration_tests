@@ -13,7 +13,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class GetUserTest extends FunctionalTests{
 
     @Test
-    public void gettingRemovedUsersDataShouldFail(){
+    public void shouldNotReceiveResponse_whenFetchedForNonExistingUser(){
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8").expect()
                 .log().all().statusCode(HttpStatus.SC_BAD_REQUEST).when().get("blog/user/4");
 
