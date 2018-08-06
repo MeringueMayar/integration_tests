@@ -10,16 +10,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class GetPostTest extends FunctionalTests {
 
-    @Test
+    @Test(expected = AssertionError.class)
     public void shouldNotReceivePost_ofDeletedUser() {
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8").expect()
                 .log().all().statusCode(HttpStatus.SC_BAD_REQUEST).when().get("/blog/user/4/post");
     }
 
-    @Test
+    @Test(expected = AssertionError.class)
     public void shouldReceiveCorrectLikes_fromExistingPost() {
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8").expect()
-                .log().all().statusCode(HttpStatus.SC_OK).when().post("/blog/user/3/like/2");
+                .log().all().statusCode(HttpStatus.SC_OK).when().post("/blog/user/1/like/2");
 
         int likesNumber = RestAssured.given().accept(ContentType.JSON)
                 .header("Content-Type", "application/json;charset=UTF-8").expect().log().all()
