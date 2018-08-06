@@ -59,24 +59,25 @@ public class BlogApiTest {
         return new ObjectMapper().writer().writeValueAsString(obj);
     }
 
-    @Test(expected = Exception.class)
-    public void throwingDataIntegrityViolationException_shouldReturnResponseWith404Status() throws Exception{
+    public void throwingDataIntegrityViolationException_shouldReturnResponseWith404Status() throws Exception {
         UserRequest user = new UserRequest();
-        user.setEmail("john@domain.com");
-        user.setFirstName("John");
-        user.setLastName("Steward");
+        user.setEmail("jan@wp.pl");
+        user.setFirstName("jan");
+        user.setLastName("Kowalsky");
+
         Mockito.when(blogService.createUser(user)).thenThrow(DataIntegrityViolationException.class);
         String content = writeJson(user);
 
         mvc.perform(post("/blog/user").contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaType.APPLICATION_JSON_UTF8).content(content)).andExpect(status().isConflict());;
+                .accept(MediaType.APPLICATION_JSON_UTF8).content(content)).andExpect(status().isConflict());
     }
 
-    @Test(expected = Exception.class)
-    public void fetchingForNonExistingUserData_shouldReturn404ResponseStatus() throws Exception{
-        Long idOfNonExistingUser = -9999L;
-        Mockito.when(finder.getUserData(idOfNonExistingUser)).thenThrow(EntityNotFoundException.class);
-        mvc.perform(get("/blog/user/{idOfNonExistingUser}", idOfNonExistingUser)).andExpect(status().isNotFound());
+    @Test
+    public void fetchingForNonExistingUserData_shouldReturn404ResponseStatus() throws Exception {
+        Long nonExistingUserID = -999L;
+
+        Mockito.when(finder.getUserData(nonExistingUserID)).thenThrow(EntityNotFoundException.class);
+        mvc.perform(get("/blog/user/{id}", nonExistingUserID)).andExpect(status().isNotFound());
     }
 
 }
