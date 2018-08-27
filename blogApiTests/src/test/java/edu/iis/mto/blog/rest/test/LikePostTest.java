@@ -1,6 +1,8 @@
 package edu.iis.mto.blog.rest.test;
 
 import org.apache.http.HttpStatus;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.jayway.restassured.RestAssured;
@@ -39,10 +41,16 @@ public class LikePostTest extends FunctionalTests {
     public void likingSamePostAgainShouldNotChangeItsStatus_likesCountShouldStayUnchanged() {
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
                 .expect().log().all().statusCode(HttpStatus.SC_OK).when().post(CONFIRMED_USER_LIKE_SOMEONES_POST_API);
+
+        int counterAfterFirstLikeAttempt = RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
+                .expect().log().all().statusCode(HttpStatus.SC_OK).when().get(CONFIRMED_USER_POST_API).then().extract().jsonPath().getInt("likesCount[0]");
+
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
                 .expect().log().all().statusCode(HttpStatus.SC_OK).when().post(CONFIRMED_USER_LIKE_SOMEONES_POST_API);
 
-        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
-                .expect().log().all().statusCode(HttpStatus.SC_OK).when().get(CONFIRMED_USER_POST_API).then().body("likesCount", hasItem(1));
+        int counterAfterSecondLikeAttempt = RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
+                .expect().log().all().statusCode(HttpStatus.SC_OK).when().get(CONFIRMED_USER_POST_API).then().extract().jsonPath().getInt("likesCount[0]");
+
+        Assert.assertThat(counterAfterFirstLikeAttempt, Matchers.equalTo(counterAfterSecondLikeAttempt));
     }
 }
