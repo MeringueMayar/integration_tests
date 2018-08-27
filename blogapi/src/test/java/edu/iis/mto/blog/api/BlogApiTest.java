@@ -17,7 +17,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.persistence.EntityNotFoundException;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -64,4 +66,9 @@ public class BlogApiTest {
                 .accept(MediaType.APPLICATION_JSON_UTF8).content(json)).andExpect(status().isConflict()).andDo(print());
     }
 
+    @Test
+    public void httpCode404NoFoundUser() throws Exception {
+        Mockito.when(finder.getUserData(Long.MIN_VALUE)).thenThrow(EntityNotFoundException.class);
+        mvc.perform(get("/blog/user/{id}", Long.MIN_VALUE)).andExpect(status().isNotFound());
+    }
 }
