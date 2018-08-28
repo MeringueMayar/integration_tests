@@ -19,4 +19,9 @@ public class AddLikeToPostTest extends FunctionalTests {
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
                 .expect().log().all().statusCode(HttpStatus.SC_BAD_REQUEST).when().post("/blog/user/2/like/1");
     }
+    @Test
+    public void removedUserLikeSomebodyUserPost() {
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
+                .expect().log().all().statusCode(HttpStatus.SC_BAD_REQUEST).when().post("/blog/user/4/like/1");
+    }
 }
