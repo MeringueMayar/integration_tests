@@ -29,4 +29,11 @@ public class AddLikeToPostTest extends FunctionalTests {
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
                 .expect().log().all().statusCode(HttpStatus.SC_BAD_REQUEST).when().post("/blog/user/1/like/1");
     }
+    @Test
+    public void userLikePostOnceAndSecondLikeDoNothing() {
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
+                .expect().log().all().statusCode(HttpStatus.SC_OK).body(is("true")).when().post("/blog/user/5/like/1");
+        RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
+                .expect().log().all().statusCode(HttpStatus.SC_OK).body(is("false")).when().post("/blog/user/5/like/1");
+    }
 }
