@@ -4,4 +4,6 @@ insert into user (id, account_status, email, first_name) values (null, 'NEW', 'b
 insert into user (id, account_status, email, first_name) values (null, 'CONFIRMED', 'cyprian@domain.com', 'Cyprian')
 insert into user (id, account_status, email, first_name) values (null, 'REMOVED', 'denis@domain.com', 'Denis')
 insert into user (id, account_status, email, first_name) values (null, 'CONFIRMED', 'edward@domain.com', 'Edward')
-insert into blog_post (id, entry, user_id) values (null, 'Post to like.', 1);
+insert into blog_post (id, entry, user_id) values (null, 'Post to like.', 1)
+insert into blog_post (id, entry, user_id) values (null, 'Post nr 2', 1);
+insert into blog_post (id, entry, user_id) values (null, 'Post nr 3', 1);
