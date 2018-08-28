@@ -12,7 +12,7 @@ public class CreatePostTest extends FunctionalTests {
         JSONObject jsonObject1 = new JSONObject().put("entry", "bla bla bla");
         RestAssured.given().accept(ContentType.JSON).header("Content-Type", "application/json;charset=UTF-8")
                 .body(jsonObject1.toString()).expect().log().body().statusCode(HttpStatus.SC_CREATED)
-                .when().post("/blog/user/1/post");
+                .when().post("/blog/user/3/post");
     }
 
     @Test
