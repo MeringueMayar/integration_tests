@@ -1,9 +1,15 @@
 package edu.iis.mto.blog.domain;
 
 import edu.iis.mto.blog.api.request.PostRequest;
+import edu.iis.mto.blog.api.request.UserRequest;
 import edu.iis.mto.blog.domain.errors.DomainError;
+import edu.iis.mto.blog.domain.model.AccountStatus;
 import edu.iis.mto.blog.domain.model.BlogPost;
+import edu.iis.mto.blog.domain.model.User;
 import edu.iis.mto.blog.domain.repository.BlogPostRepository;
+import edu.iis.mto.blog.domain.repository.UserRepository;
+import edu.iis.mto.blog.mapper.DataMapper;
+import edu.iis.mto.blog.services.BlogService;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,22 +21,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import edu.iis.mto.blog.api.request.UserRequest;
-import edu.iis.mto.blog.domain.model.AccountStatus;
-import edu.iis.mto.blog.domain.model.User;
-import edu.iis.mto.blog.domain.repository.UserRepository;
-import edu.iis.mto.blog.mapper.DataMapper;
-import edu.iis.mto.blog.services.BlogService;
-
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -82,29 +78,38 @@ public class BlogManagerTest {
     @Test
     public void likePostByUserAllConfirmed() {
         ArgumentCaptor<User> userParam = ArgumentCaptor.forClass(User.class);
-        blogService.createUser(new UserRequest("Ala", "Alalowska", "alalowska@poczta.onet.pl"));
-        verify(userRepository, times(1)).save(userParam.capture());
-        blogService.createUser(new UserRequest("Barbara", "Barbarowska", "barbarowska@wp.pl"));
+        User user1 = User("Ala", "Alalowska", "alalowska@poczta.onet.pl");
+        user1.setId(1000L);
+        userRepository.save(user1);
+        User user2 = User("Barbara", "Barbarowska", "barbarowska@wp.pl");
+        user2.setId(2000L);
+        userRepository.save(user2);
         verify(userRepository, times(2)).save(userParam.capture());
-        List<User> users = userParam.getAllValues();
-        users.get(0).setAccountStatus(AccountStatus.CONFIRMED);
-        users.get(1).setAccountStatus(AccountStatus.CONFIRMED);
-        verify(userRepository, times(2)).save(userParam.capture());
-        users = userParam.getAllValues();
-
-        blogService.createPost(users.get(0).getId(), new PostRequest());
+        BlogPost blogPost = createPost(user1);
+        blogPost.setId(3000L);
+        blogPostRepository.save(blogPost);
         ArgumentCaptor<BlogPost> postParam = ArgumentCaptor.forClass(BlogPost.class);
         verify(blogPostRepository).save(postParam.capture());
-        BlogPost blogPost = postParam.getValue();
-        blogPost.setId(1L);
-        blogPost.setUser(users.get(0));
-        verify(blogPostRepository).save(postParam.capture());
-        blogPost = postParam.getValue();
-
+        List<User> users = userParam.getAllValues();
         BlogService spyBlogService = Mockito.spy(BlogService.class);
         when(spyBlogService.addLikeToPost(users.get(1).getId(), blogPost.getId())).thenReturn(true);
 
         Assert.assertThat(users.get(1).getAccountStatus(), is(equalTo(AccountStatus.CONFIRMED)));
         Assert.assertThat(spyBlogService.addLikeToPost(users.get(1).getId(), blogPost.getId()), is(true));
+    }
+    private User User(String name, String lastName, String mail) {
+        User user = new User();
+        user.setEmail(mail);
+        user.setFirstName(name);
+        user.setLastName(lastName);
+        user.setAccountStatus(AccountStatus.CONFIRMED);
+        return user;
+    }
+    private BlogPost createPost(User user) {
+        BlogPost post = new BlogPost();
+        post.setEntry("Post 123");
+        post.setUser(user);
+        post.setLikes(new ArrayList<>());
+        return post;
     }
 }
