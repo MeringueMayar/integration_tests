@@ -20,6 +20,13 @@ public class PostRequest {
         return false;
     }
 
+    public PostRequest() {
+    }
+
+    public PostRequest(String entry) {
+        this.entry = entry;
+    }
+
     @Override
     public int hashCode() {
         return entry.hashCode();

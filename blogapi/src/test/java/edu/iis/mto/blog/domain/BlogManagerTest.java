@@ -1,11 +1,18 @@
 package edu.iis.mto.blog.domain;
 
+import edu.iis.mto.blog.api.request.PostRequest;
+import edu.iis.mto.blog.domain.errors.DomainError;
+import edu.iis.mto.blog.domain.model.BlogPost;
+import edu.iis.mto.blog.domain.model.LikePost;
+import edu.iis.mto.blog.domain.repository.BlogPostRepository;
+import edu.iis.mto.blog.domain.repository.LikePostRepository;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.Any;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,12 +25,21 @@ import edu.iis.mto.blog.domain.repository.UserRepository;
 import edu.iis.mto.blog.mapper.DataMapper;
 import edu.iis.mto.blog.services.BlogService;
 
+import java.util.List;
+import java.util.Optional;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlogManagerTest {
 
     @MockBean
     UserRepository userRepository;
+
+    @MockBean
+    BlogPostRepository blogPostRepository;
+
+    @MockBean
+    LikePostRepository likePostRepository;
 
     @Autowired
     DataMapper dataMapper;
@@ -40,4 +56,67 @@ public class BlogManagerTest {
         Assert.assertThat(user.getAccountStatus(), Matchers.equalTo(AccountStatus.NEW));
     }
 
+    @Test
+    public void creatingANewPostShouldSaveItWithNoLikes() {
+        User user = new UserBuilder().withID(1L).withAccountStatus(AccountStatus.CONFIRMED).build();
+        Mockito.when(userRepository.findOne(1L)).thenReturn(user);
+
+        blogService.createPost(1L, new PostRequest("Test entry"));
+        ArgumentCaptor<BlogPost> blogPostParam = ArgumentCaptor.forClass(BlogPost.class);
+        Mockito.verify(blogPostRepository).save(blogPostParam.capture());
+        BlogPost blogPost = blogPostParam.getValue();
+        Assert.assertThat(blogPost.getLikes(), Matchers.nullValue());
+    }
+
+    @Test(expected = DomainError.class)
+    public void addingALikeToOwnPostShouldThrowDomainError() {
+        User owner = new UserBuilder().withID(1L).withAccountStatus(AccountStatus.CONFIRMED).build();
+        Mockito.when(userRepository.findOne(1L)).thenReturn(owner);
+
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(1L);
+        blogPost.setUser(owner);
+        Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
+
+        blogService.addLikeToPost(owner.getId(), blogPost.getId());
+    }
+
+    @Test(expected = DomainError.class)
+    public void addingALikeByNewAccountShouldThrowDomainError() {
+        User owner = new UserBuilder().withID(1L).build();
+        Mockito.when(userRepository.findOne(1L)).thenReturn(owner);
+
+        User liker = new UserBuilder().withID(2L).build();
+        Mockito.when(userRepository.findOne(2L)).thenReturn(liker);
+
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(1L);
+        blogPost.setUser(owner);
+        Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
+
+        blogService.addLikeToPost(liker.getId(), blogPost.getId());
+    }
+
+    @Test
+    public void addingALikeByConfirmedAccountShouldSaveIt() {
+        User owner = new UserBuilder().withID(1L).build();
+        Mockito.when(userRepository.findOne(1L)).thenReturn(owner);
+
+        User liker = new UserBuilder().withID(2L).withAccountStatus(AccountStatus.CONFIRMED).build();
+        Mockito.when(userRepository.findOne(2L)).thenReturn(liker);
+
+        BlogPost blogPost = new BlogPost();
+        blogPost.setId(1L);
+        blogPost.setUser(owner);
+        Mockito.when(blogPostRepository.findOne(1L)).thenReturn(blogPost);
+
+        Mockito.when(likePostRepository.findByUserAndPost(liker, blogPost)).thenReturn(Optional.empty());
+        blogService.addLikeToPost(liker.getId(), blogPost.getId());
+
+        ArgumentCaptor<LikePost> likePostParam = ArgumentCaptor.forClass(LikePost.class);
+        Mockito.verify(likePostRepository).save(likePostParam.capture());
+        LikePost likePost = likePostParam.getValue();
+        Assert.assertThat(likePost.getPost(), Matchers.is(blogPost));
+        Assert.assertThat(likePost.getUser(), Matchers.is(liker));
+    }
 }
