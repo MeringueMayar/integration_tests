@@ -32,11 +32,11 @@ public class UserRepositoryTest {
     public void setUp() {
         user = new User();
         user.setFirstName("Jan");
+        user.setLastName("Nowak");
         user.setEmail("john@domain.com");
         user.setAccountStatus(AccountStatus.NEW);
     }
 
-    @Ignore
     @Test
     public void shouldFindNoUsersIfRepositoryIsEmpty() {
 
@@ -45,7 +45,6 @@ public class UserRepositoryTest {
         Assert.assertThat(users, Matchers.hasSize(0));
     }
 
-    @Ignore
     @Test
     public void shouldFindOneUsersIfRepositoryContainsOneUserEntity() {
         User persistedUser = entityManager.persist(user);
@@ -55,13 +54,76 @@ public class UserRepositoryTest {
         Assert.assertThat(users.get(0).getEmail(), Matchers.equalTo(persistedUser.getEmail()));
     }
 
-    @Ignore
     @Test
     public void shouldStoreANewUser() {
 
         User persistedUser = repository.save(user);
 
         Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
+    }
+
+    @Test
+    public void shouldFindUserByMatchingFirstName() {
+
+        User persistedUser = repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jan", "????", "????"), Matchers.contains(persistedUser));
+    }
+
+    @Test
+    public void shouldFindUserByMatchingLastName() {
+
+        User persistedUser = repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("????", "Nowak", "????"), Matchers.contains(persistedUser));
+    }
+
+    @Test
+    public void shouldFindUserByMatchingFirstNameLastName() {
+
+        User persistedUser = repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jan", "Nowak", "????"), Matchers.contains(persistedUser));
+    }
+
+    @Test
+    public void shouldFindUserByMatchingEmail() {
+
+        User persistedUser = repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("????", "????", "john@domain.com"), Matchers.contains(persistedUser));
+    }
+
+    @Test
+    public void shouldFindUserByMatchingFirstNameEmail() {
+
+        User persistedUser = repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jan", "????", "john@domain.com"), Matchers.contains(persistedUser));
+    }
+
+    @Test
+    public void shouldFindUserByMatchingLastNameEmail() {
+
+        User persistedUser = repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("????", "Nowak", "john@domain.com"), Matchers.contains(persistedUser));
+    }
+
+    @Test
+    public void shouldFindUserByMatchingFirstNameLastNameAndEmail() {
+
+        User persistedUser = repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jan", "Nowak", "john@domain.com"), Matchers.contains(persistedUser));
+    }
+
+    @Test
+    public void shouldNotFindUserForIncorrectData() {
+
+       repository.save(user);
+
+        Assert.assertThat(repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("????", "????", "????"), Matchers.hasSize(0));
     }
 
 }
