@@ -33,10 +33,9 @@ public class UserRepositoryTest {
         user = new User();
         user.setFirstName("Jan");
         user.setEmail("john@domain.com");
-        user.setAccountStatus(AccountStatus.NEW);
+        user.setAccountStatus(AccountStatus.REMOVED);
     }
 
-    @Ignore
     @Test
     public void shouldFindNoUsersIfRepositoryIsEmpty() {
 
@@ -45,7 +44,6 @@ public class UserRepositoryTest {
         Assert.assertThat(users, Matchers.hasSize(0));
     }
 
-    @Ignore
     @Test
     public void shouldFindOneUsersIfRepositoryContainsOneUserEntity() {
         User persistedUser = entityManager.persist(user);
@@ -55,7 +53,6 @@ public class UserRepositoryTest {
         Assert.assertThat(users.get(0).getEmail(), Matchers.equalTo(persistedUser.getEmail()));
     }
 
-    @Ignore
     @Test
     public void shouldStoreANewUser() {
 
@@ -64,4 +61,25 @@ public class UserRepositoryTest {
         Assert.assertThat(persistedUser.getId(), Matchers.notNullValue());
     }
 
+    @Test
+    public void shouldFindCreatedUser()
+    {
+        User persistedUser = repository.save(user);
+        List<User> userFound = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jan", "Kowal", "john@domain.com");
+        Assert.assertThat(userFound, Matchers.hasSize(1));
+    }
+    @Test
+    public void shouldFindCreatedUserByPartOfName()
+    {
+        User persistedUser = repository.save(user);
+        List<User> userFound = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("J", "Kowal", "john@domain");
+        Assert.assertThat(userFound, Matchers.hasSize(1));
+    }
+    @Test
+    public void shouldNotFindNotCreatedUser()
+    {
+        User persistedUser = repository.save(user);
+        List<User> userFound = repository.findByFirstNameContainingOrLastNameContainingOrEmailContainingAllIgnoreCase("Jean", "Kowal", "jean@domain.com");
+        Assert.assertThat(userFound, Matchers.hasSize(0));
+    }
 }
