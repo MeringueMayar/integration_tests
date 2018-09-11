@@ -48,7 +48,7 @@ public class LikePostRepositoryTest {
         blogPost1.setUser(user1);
         blogPost1.setEntry("entry");
         entityManager.persist(blogPost1);
-        
+
         blogPost2 = new BlogPost();
         blogPost2.setUser(user1);
         blogPost2.setEntry("entry");
@@ -71,7 +71,7 @@ public class LikePostRepositoryTest {
         List<LikePost> likedPosts = likePostRepository.findAll();
         Assert.assertThat(likedPosts, Matchers.hasSize(1));
     }
-    
+
     @Test
     public void shouldFindLikedPostByUserAndPost() {
         likePostRepository.save(likePost);
@@ -79,13 +79,11 @@ public class LikePostRepositoryTest {
         Assert.assertThat(likedPost.isPresent(), is(true));
     }
 
-    
     @Test
     public void shouldNotFindLikedPostWithInvalidSearchParameters() {
         likePostRepository.save(likePost);
         Optional<LikePost> likedPost = likePostRepository.findByUserAndPost(user1, blogPost2);
         Assert.assertThat(likedPost.isPresent(), is(false));
     }
-    
 
 }

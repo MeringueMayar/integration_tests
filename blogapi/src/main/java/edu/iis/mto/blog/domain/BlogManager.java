@@ -10,6 +10,7 @@ import edu.iis.mto.blog.api.request.PostRequest;
 import edu.iis.mto.blog.api.request.UserRequest;
 import edu.iis.mto.blog.domain.errors.DomainError;
 import edu.iis.mto.blog.domain.model.AccountStatus;
+import static edu.iis.mto.blog.domain.model.AccountStatus.CONFIRMED;
 import edu.iis.mto.blog.domain.model.BlogPost;
 import edu.iis.mto.blog.domain.model.LikePost;
 import edu.iis.mto.blog.domain.model.User;
@@ -40,6 +41,9 @@ public class BlogManager extends DomainService implements BlogService {
     public boolean addLikeToPost(Long userId, Long postId) {
         User user = userRepository.findOne(userId);
         BlogPost post = blogPostRepository.findOne(postId);
+        if (!user.getAccountStatus().equals(CONFIRMED)) {
+            throw new DomainError("cannot like posts if user's account is not confirmed");
+        }
         if (post.getUser().getId().equals(userId)) {
             throw new DomainError("cannot like own post");
         }
