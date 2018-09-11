@@ -26,7 +26,6 @@ import edu.iis.mto.blog.mapper.DataMapper;
 import edu.iis.mto.blog.services.BlogService;
 import static java.util.Optional.of;
 
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class BlogManagerTest {
@@ -45,21 +44,20 @@ public class BlogManagerTest {
 
     @Autowired
     BlogService blogService;
-    
+
     private Long likingUserId;
     private User user2, user1;
     private Long postId;
     private BlogPost blogPost;
 
     @Before
-    public void setup(){
+    public void setup() {
 
         user1 = new User();
         user1.setId(1L);
 
         user2 = new User();
         user2.setId(2L);
-
 
         blogPost = new BlogPost();
         blogPost.setUser(user1);
@@ -84,20 +82,21 @@ public class BlogManagerTest {
         User user = userParam.getValue();
         Assert.assertThat(user.getAccountStatus(), Matchers.equalTo(AccountStatus.NEW));
     }
+
     @Test
-    public void userWithConfirmedAccountStatusCanLikePosts(){
+    public void userWithConfirmedAccountStatusCanLikePosts() {
         user2.setAccountStatus(CONFIRMED);
         blogService.addLikeToPost(user2.getId(), blogPost.getId());
     }
 
     @Test(expected = DomainError.class)
-    public void userWithNewAccountStatusCannotLikePosts(){
+    public void userWithNewAccountStatusCannotLikePosts() {
         user2.setAccountStatus(NEW);
         blogService.addLikeToPost(user2.getId(), blogPost.getId());
     }
 
     @Test(expected = DomainError.class)
-    public void userWithRemovedAccountStatusCannotLikePosts(){
+    public void userWithRemovedAccountStatusCannotLikePosts() {
         user2.setAccountStatus(REMOVED);
         blogService.addLikeToPost(user2.getId(), blogPost.getId());
     }
